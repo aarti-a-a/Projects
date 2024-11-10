@@ -1,0 +1,331 @@
+function onFormSubmit() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var responsesSheet = spreadsheet.getSheetByName('Form Responses');
+  var volunteersSheet = spreadsheet.getSheetByName('Volunteers');
+  var pointsSheet = spreadsheet.getSheetByName('Points');
+  var connectionsSheet = spreadsheet.getSheetByName('Connections');
+  var options=spreadsheet.getSheetByName('Options');
+var optionData=options.getDataRange().getValues();
+   var volunteersData = volunteersSheet.getDataRange().getValues();
+  var lastRow = responsesSheet.getLastRow();
+  var responses = responsesSheet.getRange(lastRow, 1, 1, responsesSheet.getLastColumn()).getValues()[0];
+
+  
+  
+  
+  //if ALREADY a volunteer
+  if(responses[2]==="I am a Volunteer and would like to make changes to my account."){
+
+    for (var i = 1; i < volunteersData.length; i++) {
+      if(volunteersData[i][67]===responses[137] && volunteersData[i][0]===responses[136]){
+        
+        if(responses[138]=="Yes"){
+           volunteersSheet.getRange(i + 1, 69).setValue(1); 
+        }else{
+            volunteersSheet.getRange(i + 1, 69).setValue(0); 
+        
+        }
+
+
+        if(responses[139]=="Yes (Availability/ Specialties)"){
+          
+          for(var k=85; k<135; k++){
+            volunteersSheet.getRange(i+1,k-85+16).setValue(responses[k]);
+            
+          }}
+        
+
+          if(responses[139]=="Yes (Program/ Availability/ Specialties)"){
+          var newResponses=responses.slice(72,136);
+         
+          for(var k=0; k<responses.length; k++){
+            volunteersSheet.getRange(i+1,k+3).setValue(newResponses[k]);
+          }}
+
+
+
+var questions = volunteersSheet.getRange(1,1, 1, 69).getValues()[0]; // Extract the ith row (answers)
+var answers = volunteersSheet.getRange(i+1,1, 1, 69).getValues()[0]; // Extract the ith row (answers)
+
+questions.splice(6,1);
+questions.splice(7,1);
+questions.splice(8,1);
+questions.splice(9,1);
+questions.splice(10,1);
+
+answers.splice(6,1);
+answers.splice(7,1);
+answers.splice(8,1);
+answers.splice(9,1);
+answers.splice(10,1);
+
+for(var k=0; k<answers.length;k++){
+  if(answers[k]==""){
+    answers.splice(k,1);
+    questions.splice(k,1);
+    k--;
+  }
+}
+
+
+var pairedArray = [];
+
+// Pair elements from `questions` and `answers` in the "Q: A" format
+for (var j = 0; j < questions.length; j++) {
+  pairedArray.push(questions[j] + ": " + answers[j]); // Create the "Q: A" string for each pair
+}
+
+// Join the paired elements with a comma and create the final string
+var result = pairedArray.join("\n");
+
+     MailApp.sendEmail(volunteersData[i][1], "SACS Availability Change Confirmation", "Hello "+ volunteersData[i][0]+"," +'\n\n'+ "Your buddy acccount data reads: "+'\n\n'+ result+ '\n\n' +'Please let us know if this was an error.'+'\n\n'+'Thank you');
+      return;
+      }}
+
+     MailApp.sendEmail(responses[1], "SACS Availability Change Error", "Hello"+"," +'\n\n'+ "Your buddy acccount can't be found."+ '\n\n' +'Please let us know if this was an error.'+'\n\n'+'Thank you');
+      return;
+    }
+
+
+
+
+
+
+//if a new volunteer
+    if(responses[2]==="Are you an upperclassman that wants to volunteer to be a Buddy?"){
+     
+     var newVolunteer=responses.slice(70, 138);
+     newVolunteer.push(responses[140]);
+    
+
+      newVolunteer.splice(2,1);
+      
+      newVolunteer.push(1);  
+
+for(var u=1; u<volunteersData.length;u++){
+    if((volunteersData[u][1]===newVolunteer[1])||(volunteersData[u][66]===newVolunteer[66])){
+ MailApp.sendEmail(newVolunteer[1], "SACS Buddy Account Can't Be Created", "Hello "+ responses[1]+"," +'\n\n'+"Your buddy account can't be made. It seems you already have an account under the same McGill email or ID number."+'\n\n'+'Thank you');
+return;
+    }
+  }
+
+
+
+
+if(!newVolunteer[1].includes("mcgill.ca")){
+  
+ MailApp.sendEmail(responses[1], "SACS Buddy Account Can't Be Created", "Hello "+ responses[1]+"," +'\n\n'+ "Your buddy account can't be made. Please use a McGill email." +'Please let us know if this was an error.'+'\n\n'+'Thank you');
+return;
+}
+
+volunteersSheet.appendRow(newVolunteer);
+
+var optionsTemp= [newVolunteer[5],newVolunteer[7], newVolunteer[9],newVolunteer[11], newVolunteer[13]];
+
+for(var i=0; i<optionsTemp.length; i++){
+  if(optionsTemp[i]!=""){
+var present=false;
+for(var j=1;j<optionData[i].length;j++){
+  if(optionData[i][j]==optionsTemp[i]){
+    present=true;
+  }
+}
+
+  if(!present){
+  MailApp.sendEmail("u1rep.sacs@gmail.com","New SACS Option", newVolunteer[0]+" has suggested a new option to '"+optionData[i][0]+"': "+optionsTemp[i]);
+
+  }}
+}
+var questions = volunteersSheet.getRange(1, 1, 1, 69).getValues()[0]; // Extract the first row (questions)
+
+var answers = volunteersSheet.getRange(volunteersSheet.getLastRow(),1, 1, 69).getValues()[0]; // Extract the ith row (answers)
+
+
+
+questions.splice(6,1);
+questions.splice(7,1);
+questions.splice(8,1);
+questions.splice(9,1);
+questions.splice(10,1);
+
+answers.splice(6,1);
+answers.splice(7,1);
+answers.splice(8,1);
+answers.splice(9,1);
+answers.splice(10,1);
+
+for(var k=0; k<answers.length;k++){
+  if(answers[k]==""){
+    answers.splice(k,1);
+    questions.splice(k,1);
+    k--;
+  }
+}
+
+
+var pairedArray = [];
+
+// Pair elements from `questions` and `answers` in the "Q: A" format
+for (var j = 0; j < questions.length; j++) {
+  pairedArray.push(questions[j] + ": " + answers[j]); // Create the "Q: A" string for each pair
+}
+
+// Join the paired elements with a comma and create the final string
+var result = pairedArray.join("\n");
+
+MailApp.sendEmail(newVolunteer[1], "SACS Buddy Account Created", "Hello "+ newVolunteer[0]+"," +'\n\n'+ "Your buddy account has been made and set to available. You can change your availability via the same form."+'\n\n'+"Your data is: "+ result+"\n\n"+"We're excited to have you on the team!"+ '\n\n' +'Please let us know if this was an error.'+'\n\n'+'Thank you');
+return;
+    }
+
+
+
+
+
+
+
+
+//If they are looking for a buddy
+ if(responses[2]==="Are you current/potential Cognitive Science student that is looking for a buddy?"){
+  var respondentEmail = responses[4]; 
+  var respondentName = responses[3]; 
+  var respondentRequest = responses[68];
+  if(!respondentEmail.includes("mcgill.ca")){
+ MailApp.sendEmail(responses[1], "SACS Buddy Request Can't Be Created", "Hello "+ responses[1]+"," +'\n\n'+ "Your buddy request can't be made. Please use a McGill email." +'Please let us know if this was an error.'+'\n\n'+'Thank you');
+return;
+}
+
+  // Starts at academic year, ends before "What do you need help with?"
+  var respondentAnswers = responses.slice(5, 68);
+  var points = pointsSheet.getRange(2, 1, 1, pointsSheet.getLastColumn()).getValues()[0];
+  var maxScore = -1;
+  var bestVolunteer = null;
+  var times="";
+
+ 
+  for (var i = 1; i < volunteersData.length; i++) {
+    // if available  
+    if((volunteersData[i][volunteersSheet.getLastColumn()-1]==1)&&(respondentEmail!=volunteersData[i][2])){
+    var volunteerAnswers = volunteersData[i].slice(2);
+   
+    var score = 0;
+    var timeC=false;
+    // Compare the first value (academic year)
+    var respondentValue = parseFloat(respondentAnswers[0]);
+    var volunteerValue = parseFloat(volunteerAnswers[0]);
+   
+//add points if the buddy is in the same or greater academic year
+    if (volunteerValue > respondentValue) {
+     score += (volunteerValue-respondentValue); 
+    } else if (volunteerValue === respondentValue) {
+      score += points[0]; 
+    }
+   
+     var timeX="Common Availability: "+'\n';
+    // Compare the remaining answers
+    for (var j = 1; j < volunteerAnswers.length; j++) {
+       
+      if(j!=13){
+      if(j>13 && j<63){
+      
+        if((respondentAnswers[j]==volunteerAnswers[j])&&(respondentAnswers[j]=="Yes")){
+          timeC=true;
+             
+          timeX=timeX+volunteersData[0][j+3]+"\n";
+        
+          score += points[j];
+        }
+      }else if ((volunteerAnswers[j] == respondentAnswers[j])&& (volunteerAnswers[j] !== "")) {
+        score += points[j];
+      }}else{
+     
+var respondentNeeds=respondentAnswers[j];
+    var volunteerNeeds=volunteerAnswers[j];
+
+    var respondentNeedsArray=respondentNeeds.split(",");
+
+    for(var p=0; p<respondentNeedsArray.length;p++){
+      if(volunteerNeeds.includes(respondentNeedsArray[p])){
+        score+=points[j];
+      }
+      
+    }
+      }
+    }
+
+
+
+    if ((score > maxScore) && (timeC==true)) {
+      maxScore = score;
+      bestVolunteer = volunteersData[i];
+ times=timeX;
+    }
+  }}
+
+
+
+
+
+  //respondent answers
+var respondentQuestions = responsesSheet.getRange(1, 1, 1, responsesSheet.getLastColumn()).getValues()[0];
+var respondentAnswers=responsesSheet.getRange(responsesSheet.getLastRow(), 1, 1, responsesSheet.getLastColumn()).getValues()[0];
+respondentQ=respondentQuestions.slice(3,19); 
+respondentA=respondentAnswers.slice(3,19);
+
+respondentQ.splice(6,1);
+
+respondentQ.splice(7,1);
+respondentQ.splice(8,1);
+respondentQ.splice(9,1);
+respondentQ.splice(10,1);
+respondentQ.push(respondentQuestions[68]);
+
+
+respondentA.splice(6,1);
+respondentA.splice(7,1);
+respondentA.splice(8,1);
+respondentA.splice(9,1);
+respondentA.splice(10,1);
+respondentA.push(respondentAnswers[68]);
+
+var pairedArray = [];
+
+// Pair elements from `questions` and `answers` in the "Q: A" format
+for (var j = 0; j < respondentQ.length; j++) {
+ if(respondentA[j]!=""){
+  pairedArray.push(respondentQ[j] + ": " + respondentA[j]); // Create the "Q: A" string for each pair
+}}
+
+// Join the paired elements with a comma and create the final string
+var result1 = pairedArray.join("\n");
+
+  //ADD INFO ON THE ASKER
+  if (bestVolunteer!=null) {
+
+  var email = bestVolunteer[1]; 
+    var bvName = bestVolunteer[0];
+  var subject = "You got a SACS match!";
+  var message = 'Hello ' + bvName + '\n\n' + 
+               'A new respondent has matched with you! \n\n' +
+               'Info: '+'\n'+result1+'\n'+times+'\n\n'+
+               'Please reach out to them!';
+   var timestamp = new Date();
+   var formattedTimestamp = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");          
+  connectionsSheet.appendRow([formattedTimestamp, subject,respondentName, respondentEmail, responses[responses.length-1],bvName, email, bestVolunteer[bestVolunteer.length-3], message]);
+ MailApp.sendEmail(email, subject, message);
+ return;
+  } else {
+     var email = "u1rep.sacs@gmail.com";
+  var subject = "No Suitable Volunteer Found!";
+   var message = 'Hello '+ '\n\n' + 
+               'An unmatched respondent needs assistance! \n\n' +
+               'Info: '+'\n'+result1+'\n\n'+
+               'Please reach out to them!';
+ var timestamp = new Date();
+   var formattedTimestamp = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");          
+  connectionsSheet.appendRow([formattedTimestamp,subject, respondentName, respondentEmail, responses[responses.length-1], "U1 Rep", email, "261173529", message]);
+ MailApp.sendEmail(email, subject, message);
+ return;    
+  }
+return;
+}
+return;}
